@@ -10,7 +10,7 @@ class DioClient {
   DioClient() {
     _dio = Dio();
     _dio
-      ..options.baseUrl = NetworkConstants().baseUrl
+      ..options.baseUrl = NetworkConstants.baseUrl
       ..options.headers = {
         HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
         // HttpHeaders.authorizationHeader: 'Bearer ${AppConstants.apiToken}',
@@ -21,7 +21,7 @@ class DioClient {
       ..interceptors.add(
         PrettyDioLogger(
           compact: false,
-          logPrint: (object) => log(object.toString(), name: 'Quran API'),
+          logPrint: (object) => log(object.toString(), name: 'Task Management'),
         ),
       );
   }
