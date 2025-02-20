@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_management/config/theme/app_theme_text_style.dart';
 import 'package:task_management/core/mixin/snack_bar_mixin.dart';
+import 'package:task_management/features/home/presentation/page/home_page.dart';
 import 'package:task_management/features/login/presentation/bloc/login_bloc.dart';
 import 'package:task_management/features/login/presentation/widgets/clipper.dart';
 import 'package:task_management/features/login/presentation/widgets/clipper_2.dart';
@@ -24,11 +26,32 @@ class _LoginPageState extends State<LoginPage> with SnackBarMixin {
   final _bloc = GetIt.I.get<LoginBloc>();
 
   @override
+  void initState() {
+    super.initState();
+
+    _isUserLoggedIn();
+  }
+
+  @override
   void dispose() {
     emailCtl.dispose();
     passwordCtl.dispose();
     _bloc.close();
     super.dispose();
+  }
+
+  Future<void> _isUserLoggedIn() async {
+    final sharedPref = await SharedPreferences.getInstance();
+    final getEmail = sharedPref.getString('email') ?? '';
+
+    if (getEmail.isNotEmpty) {
+      if (mounted) {
+        await Navigator.of(context).pushNamedAndRemoveUntil(
+          HomePage.id,
+          (route) => false,
+        );
+      }
+    }
   }
 
   @override
@@ -44,9 +67,10 @@ class _LoginPageState extends State<LoginPage> with SnackBarMixin {
           if (state is SnackBarStateError) {
             showErrorSnackBar(context, message: state.message);
           } else if (state is SnackBarStateSuccess) {
-            showSuccessSnackBarAndGoToMainMenu(
+            showSuccessSnackBar(
               context,
               message: state.message,
+              onClosed: () async => await goToMainMenu(context),
             );
           } else {
             removeSnackBar(context);
@@ -251,27 +275,10 @@ class _LoginPageState extends State<LoginPage> with SnackBarMixin {
     }
   }
 
-  void showSuccessSnackBarAndGoToMainMenu(BuildContext context,
-      {String? message}) {
-    ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(
-            content: Text(message ?? ''),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 1),
-          ),
-        )
-        .closed
-        // .then((_) => goToMainMenu(context));
-        .then(
-          (_) => {},
-        );
+  Future<void> goToMainMenu(BuildContext context) async {
+    await Navigator.of(context).pushNamedAndRemoveUntil(
+      HomePage.id,
+      (route) => false,
+    );
   }
-
-  // void goToMainMenu(BuildContext context) {
-  //   Navigator.of(context).pushAndRemoveUntil(
-  //       MaterialPageRoute(builder: (context) => const AppRouter()),
-  //       (route) => false);
-  // }
 }

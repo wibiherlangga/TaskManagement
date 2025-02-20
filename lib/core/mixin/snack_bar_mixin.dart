@@ -41,14 +41,24 @@ mixin SnackBarMixin {
     );
   }
 
-  void showSuccessSnackBar(BuildContext context, {String? message}) {
+  void showSuccessSnackBar(BuildContext context,
+      {String? message, VoidCallback? onClosed}) {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message ?? ''),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 5),
-      ),
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: Text(message ?? ''),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        )
+        .closed
+        .then(
+      (_) {
+        if (onClosed != null) {
+          onClosed();
+        }
+      },
     );
   }
 

@@ -26,7 +26,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         l,
         emit,
       ),
-      (r) => _handleLoginUser(
+      (r) async => await _handleLoginUser(
         event.email,
         emit,
       ),
